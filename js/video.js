@@ -1,5 +1,17 @@
 // 1- fetch, show and load categories on html
 
+
+function getTimeString(time) {
+    const hour = Math.floor(time / 3600);
+    let remainingSeconds = time % 3600;
+    const minute = Math.floor(remainingSeconds / 60);
+    return `${hour} hour(s) ${minute} minute(s) ago`;
+}
+
+console.log(getTimeString(4320));
+
+
+
 // * create a loadCategories
 let loadCategories = () => {
     //    fetch the data
@@ -14,10 +26,15 @@ let displayCategories = (Categories) => {
     let categoriesContainer = document.getElementById('categories');
     Categories.forEach((item) => {
         console.log(item);
-        let button = document.createElement('button');
-        button.classList = 'btn';
-        button.innerText = item.category
-        categoriesContainer.append(button)
+        let buttonContainer = document.createElement('div');
+        buttonContainer.innerHTML=`
+
+        <button onclick = 'loadCategoriesVideos(${item.category_id})' class="btn">
+        ${item.category}
+        </button>
+        
+        `
+        categoriesContainer.append(buttonContainer)
     })
 
 }
@@ -28,6 +45,14 @@ let loadVideos = () => {
         .then((res) => res.json())
         .then((data) => displayVideos(data.videos))
         .catch((error) => console.log(error))
+}
+
+let loadCategoriesVideos = (id) => {
+    // alert(id)
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
+    .then((res) => res.json())
+    .then((data) => displayVideos(data.category))
+    .catch((error) => console.log(error))
 }
 
 // displayvideo
@@ -56,9 +81,11 @@ let loadVideos = () => {
 
 let displayVideos = (videos) => {
     let videoContainer = document.getElementById('videos');
+    videoContainer.innerHTML = "";
     videos.forEach((video) => {
         console.log(video);
         let card = document.createElement('div');
+
         card.classList = 'card card-compact'
         card.innerHTML = `
          <figure class = ' h-[200px] relative'>
@@ -66,14 +93,18 @@ let displayVideos = (videos) => {
       src=${video.thumbnail }
       class = 'h-full w-full object-cover'
       alt="Shoes" />
-
-      <span class = 'absolute right-2 bottom-2 bg-black text-white rounded p-1'> ${video.others.posted_date} </span>
+         ${
+        video.others.posted_date?.lenght == 0 ? "" : ` <span class = 'absolute right-2 bottom-2 bg-black text-xs text-white rounded p-1'> ${getTimeString(video.others.posted_date)} </span>`
+     }
+  
+  
   </figure>
   <div class="px-0 py-3 flex gap-2" >
 
      <div> 
          <img class = 'w-10 h-10 rounded-full object-cover' src= ${video.authors[0].profile_picture}/>
      </div>
+     
 
      <div>
         <h2 class ='font-bold'> ${video.title}</h2>
